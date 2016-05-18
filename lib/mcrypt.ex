@@ -13,10 +13,24 @@ defmodule Mcrypt do
   end
 
   @type algorithm :: :arcfour | :blowfish | :blowfish_compat | :cast_128 |
-    :cast_256 | :des | :enigma | :gost | :loki97 | :rc2 | :rijndael_128 |
-    :rijndael_192 | :rijndael_256 | :saferplus | :serpent | :tripledes |
-    :twofish | :wake | :xtea
+  :cast_256 | :des | :enigma | :gost | :loki97 | :rc2 | :rijndael_128 |
+  :rijndael_192 | :rijndael_256 | :saferplus | :serpent | :tripledes |
+  :twofish | :wake | :xtea
   @type mode :: :ecb | :cbc | :cfb | :ofb | :nofb | :ncfb | :ctr | :stream
+
+
+  @spec block_encrypt(binary, algorithm, mode, binary, binary) :: {:ok, binary} | :error
+  def block_encrypt(plaintext, algorithm, mode, key, iv) do
+    padded_plaintext = Mcrypt.Padder.zero_pad(plaintext, algorithm)
+    encrypt(padded_plaintext, algorithm, mode, key, iv)
+  end
+
+  @spec block_decrypt(binary, algorithm, mode, binary, binary) :: {:ok, binary} | :error
+  def block_decrypt(ciphertext, algorithm, mode, key, iv) do
+    {:ok, padded_binary} = decrypt(ciphertext, algorithm, mode, key, iv)
+    padded_charlist = :erlang.binary_to_list(padded_binary)
+    Enum.reverse(padded_charlist) |> Enum.drop_while(fn(x)-> x == 0 end) |> Enum.reverse
+  end
 
   @doc """
   Wraps libmcrypt's `mcrypt_generic`, including setup and teardown of the cipher
