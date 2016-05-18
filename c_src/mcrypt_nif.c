@@ -45,19 +45,14 @@ static ERL_NIF_TERM encrypt(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_atom(env, "error");
     }
 
-    ErlNifBinary ciphertext;
-    enif_alloc_binary(plaintext.size, &ciphertext);
-    for (unsigned j = 0; j < plaintext.size; j++) {
-        ciphertext.data[j] = plaintext.data[j];
-        mcrypt_generic(td, &ciphertext.data[j], 1);
-    }
+    mcrypt_generic(td, plaintext.data, plaintext.size);
 
     mcrypt_generic_end(td);
 
     return enif_make_tuple2(
       env,
       enif_make_atom(env, "ok"),
-      enif_make_binary(env, &ciphertext)
+      enif_make_binary(env, &plaintext)
     );
 }
 
@@ -105,19 +100,14 @@ static ERL_NIF_TERM decrypt(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_atom(env, "error");
     }
 
-    ErlNifBinary plaintext;
-    enif_alloc_binary(ciphertext.size, &plaintext);
-    for (unsigned j = 0; j < plaintext.size; j++) {
-        plaintext.data[j] = ciphertext.data[j];
-        mdecrypt_generic(td, &plaintext.data[j], 1);
-    }
+    mdecrypt_generic(td, ciphertext.data, ciphertext.size);
 
     mcrypt_generic_end(td);
 
     return enif_make_tuple2(
       env,
       enif_make_atom(env, "ok"),
-      enif_make_binary(env, &plaintext)
+      enif_make_binary(env, &ciphertext)
     );
 }
 
