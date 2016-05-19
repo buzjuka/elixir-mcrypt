@@ -29,7 +29,8 @@ defmodule Mcrypt do
   def block_decrypt(ciphertext, algorithm, mode, key, iv) do
     {:ok, padded_binary} = decrypt(ciphertext, algorithm, mode, key, iv)
     padded_charlist = :erlang.binary_to_list(padded_binary)
-    Enum.reverse(padded_charlist) |> Enum.drop_while(fn(x)-> x == 0 end) |> Enum.reverse
+    plaintext = Enum.reverse(padded_charlist) |> Enum.drop_while(fn(x)-> x == 0 end) |> Enum.reverse |> to_string
+    {:ok, plaintext}
   end
 
   @doc """
