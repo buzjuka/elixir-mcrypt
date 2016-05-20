@@ -19,12 +19,18 @@ defmodule Mcrypt do
   @type mode :: :ecb | :cbc | :cfb | :ofb | :nofb | :ncfb | :ctr | :stream
 
 
+  @doc """
+  Does encryption after right padding the input with the null character(0) to the correct block size
+  """
   @spec block_encrypt(binary, algorithm, mode, binary, binary) :: {:ok, binary} | :error
   def block_encrypt(plaintext, algorithm, mode, key, iv) do
     padded_plaintext = Mcrypt.Padder.zero_pad(plaintext, algorithm)
     encrypt(padded_plaintext, algorithm, mode, key, iv)
   end
 
+  @doc """
+  Does decryption and removes the 0 byte padding
+  """
   @spec block_decrypt(binary, algorithm, mode, binary, binary) :: {:ok, binary} | :error
   def block_decrypt(ciphertext, algorithm, mode, key, iv) do
     {:ok, padded_binary} = decrypt(ciphertext, algorithm, mode, key, iv)
